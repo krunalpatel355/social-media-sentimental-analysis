@@ -1,1 +1,1 @@
-# social-media-sentimental-analysis is our project  
+# social-media-sentimental-analysis 
