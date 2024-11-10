@@ -1,4 +1,4 @@
- echo "[ `date` ]": "START"
+echo "[ `date` ]": "START"
 echo "[ `date` ]": "Creating virtual env" 
 python -m venv venv/
 echo "[ `date` ]": "activate venv"
