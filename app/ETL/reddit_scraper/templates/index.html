@@ -1,0 +1,252 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddit Scraper</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8">Reddit Post Scraper</h1>
+
+        <!-- Search Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="subreddit">
+                    Enter Subreddit Name
+                </label>
+                <div class="flex gap-4">
+                    <input type="text" id="subreddit" 
+                           class="flex-1 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                           placeholder="e.g. programming">
+                    <button id="searchBtn" 
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results" class="bg-white rounded-lg shadow-md p-6 mb-8 hidden">
+            <h2 class="text-xl font-bold mb-4">Select Posts to Scrape</h2>
+            <div id="posts-container" class="space-y-4"></div>
+            
+            <div class="mt-6">
+                <button id="loadMoreBtn" 
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hidden">
+                    Load More
+                </button>
+            </div>
+
+            <div class="mt-8 pt-6 border-t">
+                <div class="mb-4">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="includeComments" class="form-checkbox">
+                        <span class="ml-2">Include Comments</span>
+                    </label>
+                </div>
+                <button id="scrapeSelectedBtn" 
+                        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Scrape Selected Posts
+                </button>
+            </div>
+        </div>
+
+        <!-- Status Section -->
+        <div id="status" class="bg-white rounded-lg shadow-md p-6 hidden">
+            <h2 class="text-xl font-bold mb-4">Scraping Status</h2>
+            <div id="status-container" class="space-y-2"></div>
+        </div>
+    </div>
+
+    <script>
+        let lastPostId = null;
+let currentSubreddit = null;
+
+// Search Subreddit
+$('#searchBtn').click(async function() {
+    const subreddit = $('#subreddit').val().trim();
+    if (!subreddit) return;
+
+    $(this).addClass('loading');
+    $('#posts-container').empty();
+    $('#results').addClass('hidden');
+    
+    try {
+        const response = await fetch('/search_subreddit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query: subreddit })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            currentSubreddit = subreddit;
+            displayPosts(data.posts);
+            $('#results').removeClass('hidden');
+            $('#loadMoreBtn').removeClass('hidden');
+            lastPostId = data.posts[data.posts.length - 1].id;
+        } else {
+            alert('Error: ' + data.message);
+        }
+    } catch (error) {
+        alert('Error searching subreddit: ' + error);
+    }
+    
+    $(this).removeClass('loading');
+});
+
+// Load More Posts
+$('#loadMoreBtn').click(async function() {
+    if (!currentSubreddit || !lastPostId) return;
+
+    $(this).addClass('loading');
+    
+    try {
+        const response = await fetch('/fetch_more', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                subreddit: currentSubreddit,
+                lastPostId: lastPostId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            displayPosts(data.posts, true);
+            if (data.posts.length > 0) {
+                lastPostId = data.posts[data.posts.length - 1].id;
+            } else {
+                $(this).addClass('hidden');
+            }
+        } else {
+            alert('Error: ' + data.message);
+        }
+    } catch (error) {
+        alert('Error loading more posts: ' + error);
+    }
+    
+    $(this).removeClass('loading');
+});
+
+// Scrape Selected Posts
+$('#scrapeSelectedBtn').click(async function() {
+    const selectedPosts = [];
+    $('input[name="post"]:checked').each(function() {
+        selectedPosts.push($(this).val());
+    });
+
+    if (selectedPosts.length === 0) {
+        alert('Please select at least one post to scrape');
+        return;
+    }
+
+    $(this).addClass('loading');
+    $('#status').removeClass('hidden');
+    $('#status-container').empty();
+    
+    try {
+        const response = await fetch('/scrape_selected', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                selectedPosts: selectedPosts,
+                includeComments: $('#includeComments').is(':checked')
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            displayScrapingResults(data.results);
+        } else {
+            alert('Error: ' + data.message);
+        }
+    } catch (error) {
+        alert('Error scraping posts: ' + error);
+    }
+    
+    $(this).removeClass('loading');
+});
+
+// Display Posts Function
+function displayPosts(posts, append = false) {
+    const postsHTML = posts.map(post => `
+        <div class="post-item border rounded p-4 hover:bg-gray-50">
+            <div class="flex items-start gap-4">
+                <input type="checkbox" name="post" value="${post.id}" class="mt-1">
+                <div class="flex-1">
+                    <h3 class="font-bold mb-2">${escapeHtml(post.title)}</h3>
+                    <div class="text-sm text-gray-600 space-y-1">
+                        <p>Author: ${post.author}</p>
+                        <p>Score: ${post.score} | Comments: ${post.num_comments}</p>
+                        <p>Posted: ${formatDate(post.created_utc)}</p>
+                        <a href="https://reddit.com${post.permalink}" target="_blank" 
+                           class="text-blue-600 hover:underline">View on Reddit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    if (append) {
+        $('#posts-container').append(postsHTML);
+    } else {
+        $('#posts-container').html(postsHTML);
+    }
+}
+
+// Display Scraping Results
+function displayScrapingResults(results) {
+    const resultsHTML = results.map(result => `
+        <div class="flex items-center gap-2 ${result.status === 'success' ? 'text-green-600' : 'text-red-600'}">
+            <span class="text-xl">${result.status === 'success' ? '✓' : '✗'}</span>
+            <span>${escapeHtml(result.title || result.id)}</span>
+            ${result.message ? `<span class="text-sm">(${escapeHtml(result.message)})</span>` : ''}
+        </div>
+    `).join('');
+    
+    $('#status-container').html(resultsHTML);
+}
+
+// Utility Functions
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function formatDate(timestamp) {
+    return new Date(timestamp * 1000).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+    </script>
+</body>
+</html>
