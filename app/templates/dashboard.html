@@ -1,0 +1,55 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h2>Analytics Dashboard</h2>
+        <div class="dashboard-actions">
+            <button class="export-btn">Export</button>
+            <button class="refresh-btn">Refresh</button>
+        </div>
+    </div>
+    
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-title">Total Active</div>
+            <div class="metric-value">107</div>
+            <div class="metric-trend positive">↑ 12% vs last month</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-title">Total Pending</div>
+            <div class="metric-value">31</div>
+            <div class="metric-trend positive">↑ 12% vs last month</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-title">Total Completed</div>
+            <div class="metric-value">390</div>
+            <div class="metric-trend positive">↑ 12% vs last month</div>
+        </div>
+    </div>
+    
+    <div class="dashboard-grid">
+        <div class="chart-container">
+            <h3>Monthly Trends</h3>
+            <div class="chart-placeholder"></div>
+        </div>
+        <div class="chart-container">
+            <h3>Performance Metrics</h3>
+            <div class="chart-placeholder"></div>
+        </div>
+    </div>
+    
+    <div class="recent-activity">
+        <div class="section-header">
+            <h3>Recent Activity</h3>
+            <a href="#" class="view-all">View All</a>
+        </div>
+        <div class="activity-item">
+            <div class="activity-icon">👤</div>
+            <div class="activity-details">
+                <div class="activity-title">User Activity 1</div>
+                <div class="activity-time">Action performed at 1:00 PM</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
