@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segmentation Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #33415C;
+            color: white;
+            padding: 20px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-header h2 a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .sidebar-header h2 a:hover {
+            color: #b3cde0;
+        }
+
+        .sidebar-nav ul, .analysis-section ul {
+            list-style: none;
+        }
+
+        .sidebar-nav ul li, .analysis-section ul li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar-nav ul li a, .analysis-section ul li a {
+            text-decoration: none;
+            color: white;
+            display: block;
+            padding: 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar-nav ul li a:hover, .analysis-section ul li a:hover {
+            background-color: #5c6bc0;
+        }
+
+        .analysis-section h3 {
+            margin-top: 40px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .analysis-section ul li a.active {
+            background-color: #7986cb;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .team-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .team-member {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            text-align: center;
+        }
+
+        .team-member img {
+            width: 150px;
+            height: 150px;
+            object-fit: contain; /* Ensures the entire head fits within the circle */
+            border-radius: 50%;
+            margin-bottom: 15px;
+        }
+
+        .team-member h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .team-member p {
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><a href="C:/Users/Hazel/Downloads/segmentationanalysis.html">Sample: Segmentation Analysis</a></h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#">Overview</a></li>
+                    <li><a href="C:/Users/Hazel/Downloads/segmentationTeam.html">People</a></li>
+                    <li><a href="#">Interviews</a></li>
+                    <li><a href="#">Notes & Media</a></li>
+                    <li><a href="#">Surveys</a></li>
+                </ul>
+            </nav>
+            <div class="analysis-section">
+                <h3>Analysis</h3>
+                <ul>
+                    <li><a href="#">Tags</a></li>
+                    <li><a href="#">Highlights</a></li>
+                    <li class="active"><a href="#">Segmentation Analysis</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="content">
+            <h1>Our Team</h1>
+            <div class="team-list">
+                <div class="team-member">
+                    <img src="C:/Users/Hazel/Downloads/krunal.png" alt="Krunal Patel">
+                    <h2>Krunal Patel</h2>
+                    <p>ID: C0936008</p>
+                </div>
+                <div class="team-member">
+                    <img src="C:/Users/Hazel/Downloads/gustavo.png" alt="Gustavo Vera Suarez">
+                    <h2>Gustavo Vera Suarez</h2>
+                    <p>ID: C0917164</p>
+                </div>
+                <div class="team-member">
+                    <img src="C:/Users/Hazel/Downloads/sangsun.png" alt="Sangsun Lee">
+                    <h2>Sangsun Lee</h2>
+                    <p>ID: C0905412</p>
+                </div>
+                <div class="team-member">
+                    <img src="C:/Users/Hazel/Downloads/hazelprofilepic.jpeg" alt="Hazel Santos">
+                    <h2>Hazel Santos</h2>
+                    <p>ID: C0915982</p>
+                </div>
+                <div class="team-member">
+                    <img src="C:/Users/Hazel/Downloads/daniel.png" alt="Daniel Alarcon">
+                    <h2>Daniel Alarcon</h2>
+                    <p>ID: C0941168</p>
+                </div>
+                <div class="team-member">
+                    <img src="C:/Users/Hazel/Downloads/sneha1.png" alt="Sneha Painuli">
+                    <h2>Sneha Painuli</h2>
+                    <p>ID: C0933116</p>
+                </div>
+                <div class="team-member">
+                    <img src="C:/Users/Hazel/Downloads/komal.png" alt="Komal Nandal">
+                    <h2>Komal Nandal</h2>
+                    <p>ID: C0933116</p>
+                </div>
+                <div class="team-member">
+                    <img src="C:/Users/Hazel/Downloads/mahek.png" alt="Mahek Ghanchi">
+                    <h2>Mahek Ghanchi</h2>
+                    <p>ID: C0937254</p>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
