@@ -1,20 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
-
-
 import snscrape.modules.twitter as sntwitter
 import pandas as pd
 from textblob import TextBlob  # For sentiment analysis
-
-
-# In[3]:
-
-
-import snscrape.modules.twitter as sntwitter
-import pandas as pd
-from textblob import TextBlob
 import time
 import os
 
@@ -129,22 +118,8 @@ for query in queries:
 
 print("Scraping completed or target file size reached.")
 
-
-# In[4]:
-
-
+# Fixing certificate issues
 get_ipython().run_line_magic('pip', 'install --upgrade certifi')
-
-
-# In[6]:
-
 
 import snscrape.base
 snscrape.base.Scraper._request_kwargs = {'verify': False}
-
-
-# In[ ]:
-
-
-
-

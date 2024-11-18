@@ -25,12 +25,6 @@ class Config:
     MAIL_USE_SSL = True
     MAIL_USERNAME = os.getenv('MAIL_USERNAME', default='')
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', default='')
-    MAIL_DEFAULT_SENDER = os.getenv('MAIL_USERNAME', default='')
-    MAIL_SUPPRESS_SEND = False
-
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-    CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL ')
     RESULT_BACKEND = os.getenv('RESULT_BACKEND')
     
 
