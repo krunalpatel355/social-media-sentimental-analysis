@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segmentation Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #33415C;
+            color: white;
+            padding: 20px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-header h2 a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .sidebar-header h2 a:hover {
+            color: #b3cde0;
+        }
+
+        .sidebar-nav ul, .analysis-section ul {
+            list-style: none;
+        }
+
+        .sidebar-nav ul li, .analysis-section ul li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar-nav ul li a, .analysis-section ul li a {
+            text-decoration: none;
+            color: white;
+            display: block;
+            padding: 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar-nav ul li a:hover, .analysis-section ul li a:hover {
+            background-color: #5c6bc0;
+        }
+
+        .analysis-section h3 {
+            margin-top: 40px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .analysis-section ul li a.active {
+            background-color: #7986cb;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .tab-bar {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            background-color: #e0e0e0;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-right: 5px;
+            border-radius: 4px;
+        }
+
+        .tab-button.active {
+            background-color: #3f51b5;
+            color: white;
+        }
+
+        .correlation-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .correlation-section h3 {
+            margin-bottom: 10px;
+        }
+
+        .correlation-options {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .select-group {
+            margin-right: 20px;
+        }
+
+        .select-group label {
+            margin-right: 10px;
+        }
+
+        .correlation-map {
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        table th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><a href="C:/Users/Hazel/Downloads/segmentationanalysis.html">Sample: Segmentation Analysis</a></h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#">Overview</a></li>
+                    <li><a href="C:/Users/Hazel/Downloads/segmentationTeam.html">People</a></li>
+                    <li><a href="#">Interviews</a></li>
+                    <li><a href="#">Notes & Media</a></li>
+                    <li><a href="#">Surveys</a></li>
+                </ul>
+            </nav>
+            <div class="analysis-section">
+                <h3>Analysis</h3>
+                <ul>
+                    <li><a href="#">Tags</a></li>
+                    <li><a href="#">Highlights</a></li>
+                    <li class="active"><a href="#">Segmentation Analysis</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="content">
+            <div class="tab-bar">
+                <button class="tab-button">Highlights</button>
+                <button class="tab-button">Segments</button>
+                <button class="tab-button active">Correlation</button>
+            </div>
+
+            <section class="correlation-section">
+                <h3>Highlight - Segment Correlation</h3>
+                <p>How many times were the tags used within a given user segment.</p>
+                <div class="correlation-options">
+                    <div class="select-group">
+                        <label for="tag-group">View:</label>
+                        <select id="tag-group">
+                            <option>Select Tag Group</option>
+                            <option>Tag Group 1</option>
+                            <option>Tag Group 2</option>
+                        </select>
+                    </div>
+                    <div class="select-group">
+                        <label for="segment-tags">Correlation with:</label>
+                        <select id="segment-tags">
+                            <option>All Segment Tags</option>
+                            <option>Segment Tag 1</option>
+                            <option>Segment Tag 2</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="correlation-map">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Segment 1</th>
+                                <th>Segment 2</th>
+                                <th>Segment 3</th>
+                                <th>Segment 4</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Tag 1</td>
+                                <td>5</td>
+                                <td>10</td>
+                                <td>7</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Tag 2</td>
+                                <td>8</td>
+                                <td>12</td>
+                                <td>4</td>
+                                <td>6</td>
+                            </tr>
+                            <tr>
+                                <td>Tag 3</td>
+                                <td>3</td>
+                                <td>9</td>
+                                <td>2</td>
+                                <td>11</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>Select a tag group to generate a correlation map.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
