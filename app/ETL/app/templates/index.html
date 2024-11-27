@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% extends "base.html" %}</title>
+</head>
+{% block content %}
+<div class="welcome-container fade-in">
+    <h1>Welcome to Enhanced Chat UI</h1>
+    <p>Start a new conversation or continue from your history</p>
+    <div class="action-buttons">
+        <a href="{{ url_for('main.chat') }}" class="primary-btn bounce-in">
+            <i class="fas fa-plus"></i> New Chat
+        </a>
+        <button class="secondary-btn bounce-in" onclick="document.getElementById('sidebar').classList.add('active')">
+            <i class="fas fa-history"></i> View History
+        </button>
+    </div>
+</div>
+{% endblock %}

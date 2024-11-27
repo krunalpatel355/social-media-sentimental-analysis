@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>What can I help with?</h1>
+        <form id="search-form">
+            <input type="text" name="keyword" placeholder="Type your query here" required>
+            <button type="submit">Search</button>
+        </form>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        document.getElementById("search-form").onsubmit = async function(e) {
+            e.preventDefault();
+            const keyword = document.querySelector('input[name="keyword"]').value;
+            const response = await fetch('/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ keyword })
+            });
+            const results = await response.json();
+            document.getElementById("results").innerHTML = results.map(
+                item => `<p>${item.title} - Similarity: ${item.similarity}</p>`
+            ).join('');
+        };
+    </script>
+</body>
+</html>

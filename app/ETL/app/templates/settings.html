@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="settings-container fade-in">
+    <h1>Settings</h1>
+    
+    <div class="settings-section">
+        <h2>Appearance</h2>
+        <div class="setting-item">
+            <label>Theme</label>
+            <select id="themeSelect">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="system">System Default</option>
+            </select>
+        </div>
+        
+        <div class="setting-item">
+            <label>Font Size</label>
+            <select id="fontSize">
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="large">Large</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="settings-section">
+        <h2>Chat Settings</h2>
+        <div class="setting-item">
+            <label>Send messages with Enter</label>
+            <input type="checkbox" id="enterToSend">
+        </div>
+        
+        <div class="setting-item">
+            <label>Message History</label>
+            <button class="danger-btn" id="clearHistory">
+                Clear Chat History
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+    
