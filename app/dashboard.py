@@ -15,6 +15,7 @@ import logging
 import warnings
 from datetime import datetime, timezone
 warnings.filterwarnings('ignore')
+from app.config.settings import Config
 
 # Configure logging
 logging.basicConfig(
@@ -321,47 +322,68 @@ class RedditAnalyzer:
             logger.error(f"Error in text search: {str(e)}")
             return {"error": f"Error performing text search: {str(e)}"}
 
-def main():
-    """Example usage of the analysis dashboard"""
-    try:
-        # Initialize analyzer with MongoDB connection string
-        mongo_uri = "mongodb+srv://krunalpatel35538:cAWTAyi0DLb3NJUT@cluster0.lu5p4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-        analyzer = RedditAnalyzer(mongo_uri)
+class DASHBOARD:
+    def __init__(self, search_id: str):
+        """
+        Initialize Dashboard with a specific search ID
         
-        # Example search_id (replace with actual search_id)
-        search_id = "1f20afa7-66dd-4755-b5af-ffda22672d33"
+        Args:
+            search_id (str): Unique identifier for the search
+        """
+        self.search_id = search_id
+        # self.logger = logging.getLogger(__name__)
         
-        # 1. Sentiment Analysis
-        logger.info("Performing sentiment analysis...")
-        sentiment_results = analyzer.perform_sentiment_analysis(search_id)
-        if "error" not in sentiment_results:
-            print("\nSentiment Analysis Results:")
-            for category, percentage in sentiment_results['overall'].items():
-                if category.endswith('_percentage'):
-                    print(f"{category.replace('_percentage', '').capitalize()}: {percentage:.1f}%")
+    def get_sentiment_analyzer(self, mongo_uri: str) -> 'RedditAnalyzer':
+        """
+        Initialize and return RedditAnalyzer
         
-        # 2. Segmentation Analysis
-        logger.info("Performing segmentation analysis...")
-        segment_results = analyzer.perform_segmentation_analysis(search_id)
-        if "error" not in segment_results:
-            print("\nSegmentation Analysis Results:")
-            for cluster in segment_results['clusters']:
-                print(f"\nCluster {cluster['cluster_id']}:")
-                print(f"Size: {cluster['size']} posts")
-                print(f"Top terms: {', '.join(cluster['top_terms'][:5])}")
+        Args:
+            mongo_uri (str): MongoDB connection string
         
-        # 3. Text Search
-        query = "world politics"
-        logger.info(f"Performing text search for query: {query}")
-        search_results = analyzer.text_search(search_id, query)
-        if "error" not in search_results:
-            print(f"\nSearch Results for '{query}':")
-            print(f"Found {search_results['total_matches']} matching posts")
-            for post in search_results['matching_posts'][:3]:
-                print(f"- {post['title']} (relevance: {post['relevance_score']:.2f})")
-    
-    except Exception as e:
-        logger.error(f"Error in main execution: {str(e)}")
+        Returns:
+            RedditAnalyzer: Initialized analyzer instance
+        """
+        try:
+            analyzer = RedditAnalyzer(mongo_uri)
+            # self.logger.info(f"RedditAnalyzer initialized for search_id: {self.search_id}")
+            return analyzer
+        except Exception as e:
+            # self.logger.error(f"Failed to initialize RedditAnalyzer: {str(e)}")
+            raise
 
-if __name__ == "__main__":
-    main()
+    def perform_comprehensive_analysis(self) -> Dict[str, any]:
+        """
+        Perform comprehensive analysis including sentiment and segmentation
+        
+        Returns:
+            Dict: Comprehensive analysis results
+        """
+        try:
+            # Initialize analyzer
+            analyzer = self.get_sentiment_analyzer(Config.MONGODB_URI)
+            
+            # Perform sentiment analysis
+            self.logger.info("Starting sentiment analysis...")
+            sentiment_results = analyzer.perform_sentiment_analysis(self.search_id)
+            
+            # Perform segmentation analysis
+            self.logger.info("Starting segmentation analysis...")
+            segmentation_results = analyzer.perform_segmentation_analysis(self.search_id)
+            
+            # Optional: Text search
+            self.logger.info("Performing text search...")
+            text_search_results = analyzer.text_search(self.search_id, "default query")
+            
+            return {
+                "sentiment": sentiment_results,
+                "segmentation": segmentation_results,
+                "text_search": text_search_results
+            }
+        
+        except Exception as e:
+            self.logger.error(f"Comprehensive analysis failed: {str(e)}")
+            return {
+                "error": str(e),
+                "message": "Failed to perform comprehensive analysis"
+            }
+
