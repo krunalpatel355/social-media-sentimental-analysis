@@ -4,10 +4,10 @@ import uuid
 from pymongo import MongoClient, TEXT
 from dataclasses import dataclass, asdict
 from bson import ObjectId
+from app.config.settings import Config
 
 # MongoDB Connection
-MONGODB_URI = "mongodb+srv://krunalpatel35538:cAWTAyi0DLb3NJUT@cluster0.lu5p4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-
+MONGODB_URI = Config.MONGODB_URI
 @dataclass
 class SearchParameters:
     """Class to hold search parameters"""
@@ -140,34 +140,42 @@ class SearchManager:
             return result
         return None
 
-def main():
-    """Example usage of the search functionality"""
-    search_manager = SearchManager()
+class search:
+    def __init__(self, parameters):
+        self.parameters = parameters
+
+    def perform_simple_search(self):
+        search_manager = SearchManager()
+        
+        # Example 1: Simple Search
+        print("\nPerforming simple search...")
+        simple_search_id = search_manager.simple_search(self.parameters)
+        simple_results = search_manager.get_search_results(simple_search_id)
+        return simple_search_id
     
-    # Example 1: Simple Search
-    print("\nPerforming simple search...")
-    simple_search_id = search_manager.simple_search(['politics', 'news'])
-    simple_results = search_manager.get_search_results(simple_search_id)
-    print(f"Simple Search ID: {simple_search_id}")
-    print(f"Found {simple_results['total_posts']} posts")
+    def perform_advance_search(self):
+        search_manager = SearchManager()
+        # Example 2: Advanced Search
+        print("\nPerforming advanced search...")
+        
     
-    # Example 2: Advanced Search
-    print("\nPerforming advanced search...")
-    parameters = SearchParameters(
-        subreddits=['politics'],
-        from_time=datetime(2024, 3, 1, tzinfo=UTC),  # Added timezone info
-        to_time=datetime.now(UTC),
-        sort_types=['hot', 'new', 'top'],
-        post_limit=100,
-        include_comments=False,
-        search_text="election",
-        comment_limit=10
-    )
-    
-    advanced_search_id = search_manager.advanced_search(parameters)
-    advanced_results = search_manager.get_search_results(advanced_search_id)
-    print(f"Advanced Search ID: {advanced_search_id}")
-    print(f"Found {advanced_results['total_posts']} posts")
+        advanced_search_id = search_manager.advanced_search(self.parameters)
+        advanced_results = search_manager.get_search_results(advanced_search_id)
+        return advanced_search_id
+
+
 
 if __name__ == "__main__":
-    main()
+    parameters = SearchParameters(
+            subreddits=['politics'],
+            from_time=datetime(2024, 3, 1, tzinfo=UTC),  # Added timezone info
+            to_time=datetime.now(UTC),
+            sort_types=['hot', 'new', 'top'],
+            post_limit=100,
+            include_comments=False,
+            search_text="election",
+            comment_limit=10
+        )
+    s = search(parameters)
+    # s.perform_simple_search()
+    s.perform_advance_search()
