@@ -4,12 +4,13 @@ from datetime import datetime
 from typing import Dict, List, Optional, NamedTuple
 import sys
 from tqdm.notebook import tqdm
-
+from config.settings import Config
 # MongoDB and Reddit Connection Setup
-MONGODB_URI = "mongodb+srv://krunalpatel35538:cAWTAyi0DLb3NJUT@cluster0.lu5p4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-REDDIT_CLIENT_ID="R4aTlqzdkwL8HlP0kbqI_w"   
-REDDIT_CLIENT_SECRET="_-xw-M0CWgf3xDc7XMJU3RdCWB9WIQ"
-REDDIT_USER_AGENT="Hazel/1.0 by SeaLimit6194"
+
+MONGODB_URI = Config.MONGODB_URI
+REDDIT_CLIENT_ID = Config.REDDIT_CLIENT_ID
+REDDIT_CLIENT_SECRET =  Config.REDDIT_CLIENT_SECRET
+REDDIT_USER_AGENT = Config.REDDIT_USER_AGENT
 
 class ConnectionManager:
     @staticmethod
