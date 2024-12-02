@@ -2,7 +2,7 @@ import requests
 from typing import List
 import numpy as np
 from pymongo import MongoClient
-from config.settings import Config
+from app.config.settings import Config
 import pymongo
 import certifi
 from typing import Dict, Any
