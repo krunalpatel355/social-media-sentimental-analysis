@@ -1,15 +1,16 @@
-# app.py
 from flask import Flask, render_template, request, jsonify
 from datetime import datetime, UTC
 import random  # For demo dashboard data
-from ves import VES
-from search import search 
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objs as go
 from typing import List, Optional, Dict, Union
 from dataclasses import dataclass, asdict
-from dashboard import DASHBOARD
-import pandas as pd
-import numpy as np 
-import plotly.express as px
+from app.dashboard import DASHBOARD
+from app.ves import VES
+from app.search import search 
+from app.config.settings import Config
+
 
 app = Flask(__name__)
 
@@ -43,35 +44,87 @@ def get_initial_data():
 
 @app.route('/dashboard')
 def dashboard():
-    # Generate some sample data for the dashboard
-    monthly_data = [random.randint(1000, 5000) for _ in range(12)]
-    performance_data = [random.randint(60, 100) for _ in range(6)]
-    status_data = {
-        "Active": random.randint(100, 200),
-        "Pending": random.randint(20, 50),
-        "Completed": random.randint(300, 400)
-    }
-
-    df = pd.DataFrame({
-        "x": [1, 2, 3, 4, 5],
-        "y": [10, 20, 25, 30, 40],
-        "size": [50, 60, 70, 80, 90],
-        "color": [1, 2, 3, 4, 5]
-    })
-
-    # Create a Plotly scatter plot
-    fig = px.scatter(df, x="x", y="y", size="size", color="color", title="Interactive Scatter Plot")
+    # Use search_id from a recent search or a default value
+    search_id = "8cba419b-aa5b-4e80-8c96-70b520efdc1b"  # You might want to manage this dynamically
     
-    # Generate the plot's HTML div
-    graph_html = fig.to_html(full_html=False)
+    # Initialize dashboard with search_id
+    dashboard_instance = DASHBOARD(search_id)
     
+    # Get sentiment analysis results
+    mongo_uri = Config.MONGODB_URI  # Replace with your actual MongoDB URI
+    analyzer = dashboard_instance.get_sentiment_analyzer(mongo_uri)
+    
+    # Sentiment Analysis
+    sentiment_results = analyzer.perform_sentiment_analysis(search_id)
+    
+    # Segmentation Analysis
+    segmentation_results = analyzer.perform_segmentation_analysis(search_id)
+
+    # Prepare Sentiment Pie Chart
+    sentiment_pie_data = [
+        {'category': 'Positive', 'value': sentiment_results['overall']['positive_percentage']},
+        {'category': 'Neutral', 'value': sentiment_results['overall']['neutral_percentage']},
+        {'category': 'Negative', 'value': sentiment_results['overall']['negative_percentage']}
+    ]
+    
+    pie_chart = go.Figure(data=[go.Pie(
+        labels=[item['category'] for item in sentiment_pie_data],
+        values=[item['value'] for item in sentiment_pie_data],
+        hole=.3,
+        marker_colors=['green', 'gray', 'red']
+    )])
+    pie_chart_html = pie_chart.to_html(full_html=False)
+
+    # Prepare Cluster Visualization
+    cluster_data = []
+    for cluster in segmentation_results['clusters']:
+        cluster_data.append({
+            'cluster_id': cluster['cluster_id'],
+            'size': cluster['size'],
+            'top_terms': ', '.join(cluster['top_terms'][:5])
+        })
+    
+    # Create Cluster Size Pie Chart
+    cluster_pie_chart = go.Figure(data=[go.Pie(
+        labels=[f"Cluster {c['cluster_id']}" for c in cluster_data],
+        values=[c['size'] for c in cluster_data],
+        hole=.3
+    )])
+    cluster_pie_chart_html = cluster_pie_chart.to_html(full_html=False)
+
+    # Prepare Cluster Sunburst Chart (showing hierarchy)
+    sunburst_data = []
+    for cluster in segmentation_results['clusters']:
+        sunburst_data.append(dict(
+            ids=f"Cluster {cluster['cluster_id']}",
+            labels=f"Cluster {cluster['cluster_id']}",
+            parents="",
+            values=cluster['size']
+        ))
+        # Add top terms as children
+        for term in cluster['top_terms'][:3]:
+            sunburst_data.append(dict(
+                ids=f"Cluster {cluster['cluster_id']} - {term}",
+                labels=term,
+                parents=f"Cluster {cluster['cluster_id']}",
+                values=1
+            ))
+    
+    sunburst_chart = go.Figure(go.Sunburst(
+        ids=[d['ids'] for d in sunburst_data],
+        labels=[d['labels'] for d in sunburst_data],
+        parents=[d['parents'] for d in sunburst_data],
+        values=[d['values'] for d in sunburst_data]
+    ))
+    sunburst_chart_html = sunburst_chart.to_html(full_html=False)
 
     return render_template('dashboard.html', 
                          active_page='dashboard',
-                         monthly_data=monthly_data,
-                         performance_data=performance_data,
-                         status_data=status_data,
-                         graph_html=graph_html)
+                         sentiment_results=sentiment_results,
+                         segmentation_results=segmentation_results,
+                         pie_chart_html=pie_chart_html,
+                         cluster_pie_chart_html=cluster_pie_chart_html,
+                         sunburst_chart_html=sunburst_chart_html)
 
 
 @app.route('/simple_search', methods=['POST'])
