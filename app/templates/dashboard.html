@@ -1,55 +1,100 @@
-{% extends "index.html" %}
+<!-- templates/dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
 {% block content %}
-<div class="dashboard-container">
-    <div class="dashboard-header">
-        <h2>Analytics Dashboard</h2>
-        <div class="dashboard-actions">
-            <button class="export-btn">Export</button>
-            <button class="refresh-btn">Refresh</button>
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-800">Analytics Dashboard</h1>
+        <div class="flex space-x-4">
+            <button class="bg-white px-4 py-2 rounded-md shadow-sm border hover:bg-gray-50">
+                <i class="fas fa-download mr-2"></i>Export
+            </button>
+            <button class="bg-indigo-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-indigo-700">
+                <i class="fas fa-sync-alt mr-2"></i>Refresh
+            </button>
         </div>
     </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Sentiment Analysis Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 md:col-span-2 lg:col-span-2">
+            <h2 class="text-lg font-semibold mb-4">Sentiment Distribution</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    {{ pie_chart_html|safe }}
+                </div>
+                <div class="grid grid-cols-3 gap-4 text-center content-center">
+                    <div>
+                        <span class="block text-green-500 font-semibold">Positive</span>
+                        <span>{{ sentiment_results.overall.positive_percentage|round(1) }}%</span>
+                    </div>
+                    <div>
+                        <span class="block text-gray-500 font-semibold">Neutral</span>
+                        <span>{{ sentiment_results.overall.neutral_percentage|round(1) }}%</span>
+                    </div>
+                    <div>
+                        <span class="block text-red-500 font-semibold">Negative</span>
+                        <span>{{ sentiment_results.overall.negative_percentage|round(1) }}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     
-    <div class="metrics-grid">
-        <div class="metric-card">
-            <div class="metric-title">Total Active</div>
-            <div class="metric-value">107</div>
-            <div class="metric-trend positive">↑ 12% vs last month</div>
+        <!-- Cluster Size Distribution -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-lg font-semibold mb-4">Cluster Distribution</h2>
+            {{ cluster_pie_chart_html|safe }}
         </div>
-        <div class="metric-card">
-            <div class="metric-title">Total Pending</div>
-            <div class="metric-value">31</div>
-            <div class="metric-trend positive">↑ 12% vs last month</div>
-        </div>
-        <div class="metric-card">
-            <div class="metric-title">Total Completed</div>
-            <div class="metric-value">390</div>
-            <div class="metric-trend positive">↑ 12% vs last month</div>
-        </div>
-    </div>
     
-    <div class="dashboard-grid">
-        <div class="chart-container">
-            <h3>Monthly Trends</h3>
-            <div class="chart-placeholder"></div>
+        <!-- Cluster Details -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-lg font-semibold mb-4">Cluster Insights</h2>
+            <div class="space-y-4">
+                {% for cluster in segmentation_results.clusters %}
+                <div class="border-b pb-3">
+                    <div class="flex justify-between">
+                        <span class="font-medium">Cluster {{ cluster.cluster_id }}</span>
+                        <span class="text-gray-600">{{ cluster.size }} posts</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">
+                        Top Terms: {{ ', '.join(cluster.top_terms[:5]) }}
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
         </div>
-        <div class="chart-container">
-            <h3>Performance Metrics</h3>
-            <div class="chart-placeholder"></div>
-        </div>
-    </div>
     
-    <div class="recent-activity">
-        <div class="section-header">
-            <h3>Recent Activity</h3>
-            <a href="#" class="view-all">View All</a>
+        <!-- Cluster Hierarchy -->
+        <div class="bg-white rounded-lg shadow-md p-6 md:col-span-2 lg:col-span-3">
+            <h2 class="text-lg font-semibold mb-4">Cluster Hierarchy</h2>
+            {{ sunburst_chart_html|safe }}
         </div>
-        <div class="activity-item">
-            <div class="activity-icon">👤</div>
-            <div class="activity-details">
-                <div class="activity-title">User Activity 1</div>
-                <div class="activity-time">Action performed at 1:00 PM</div>
+    
+        <!-- Top Posts Across Clusters -->
+        <div class="bg-white rounded-lg shadow-md p-6 md:col-span-2 lg:col-span-3">
+            <h2 class="text-lg font-semibold mb-4">Top Posts Across Clusters</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for cluster in segmentation_results.clusters %}
+                <div class="border rounded p-4">
+                    <h3 class="font-semibold mb-2">Cluster {{ cluster.cluster_id }}</h3>
+                    <ul class="space-y-2">
+                        {% for post in cluster.posts[:3] %}
+                        <li>
+                            <div class="text-sm font-medium">{{ post.title }}</div>
+                            <div class="text-xs text-gray-500">
+                                Subreddit: {{ post.subreddit }} | Score: {{ post.score }}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
-</div>
+    
+
+
 {% endblock %}

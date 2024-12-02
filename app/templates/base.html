@@ -1,0 +1,71 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Analytics Platform{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <!-- Navbar -->
+    <nav class="bg-indigo-600 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold">Analytics Platform</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="px-3 py-2 rounded-md {% if active_page == 'search' %}bg-indigo-700{% endif %}">
+                        Search Tool
+                    </a>
+                    <a href="/dashboard" class="px-3 py-2 rounded-md {% if active_page == 'dashboard' %}bg-indigo-700{% endif %}">
+                        Dashboard
+                    </a>
+                    <div class="relative">
+                        <button class="flex items-center space-x-1">
+                            <i class="fas fa-user-circle text-xl"></i>
+                            <span>John Doe</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar and Content -->
+    <div class="flex h-screen bg-gray-100">
+        <!-- Sidebar -->
+        <div class="w-64 bg-white shadow-lg">
+            <div class="p-4">
+                <div class="space-y-4">
+                    <a href="/" class="block px-4 py-2 rounded-md {% if active_page == 'search' %}bg-indigo-100 text-indigo-600{% endif %}">
+                        <i class="fas fa-search mr-2"></i> Search
+                    </a>
+                    <a href="/dashboard" class="block px-4 py-2 rounded-md {% if active_page == 'dashboard' %}bg-indigo-100 text-indigo-600{% endif %}">
+                        <i class="fas fa-chart-bar mr-2"></i> Dashboard
+                    </a>
+                    <hr class="my-4">
+                    <div class="px-4 py-2">
+                        <h3 class="font-semibold text-gray-600">Quick Links</h3>
+                        <div class="mt-2 space-y-2">
+                            <a href="#" class="block text-gray-500 hover:text-indigo-600">Reports</a>
+                            <a href="#" class="block text-gray-500 hover:text-indigo-600">Analytics</a>
+                            <a href="#" class="block text-gray-500 hover:text-indigo-600">Settings</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-8">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

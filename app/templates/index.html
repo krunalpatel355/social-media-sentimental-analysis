@@ -1,10 +1,425 @@
-<!DOCTYPE html>
-<html lang='en'>
-<head>
-<meta charset='UTF-8'>
-<title>Home</title>
-</head>
-<body>
-<h1>User Interface</h1>
-</body>
-</html>
+<!-- templates/index.html -->
+{% extends "base.html" %}
+
+{% block title %}Search Tool{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Initial Input Section -->
+    <div id="initial-section" class="mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Search Configuration</h2>
+            <div class="flex space-x-4">
+                <input type="text" id="user-input" placeholder="Enter text here" class="px-4 py-2 border rounded mb-1">
+
+                <!-- Submit Button -->
+                <button onclick="getInitialData()" class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition">
+                    Submit
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dynamic Buttons Section -->
+    <div id="dynamic-buttons" class="mb-8 hidden">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-4">Select Options:</h3>
+            <div id="button-container" class="flex flex-wrap gap-2"></div>
+        </div>
+    </div>
+
+    <!-- Search Type Tabs -->
+    <div id="search-tabs" class="hidden">
+        <div class="bg-white rounded-lg shadow-md">
+            <div class="border-b">
+                <nav class="flex space-x-4 px-6 py-3">
+                    <button onclick="switchTab('simple')" id="simple-tab" 
+                            class="px-4 py-2 font-medium rounded-md transition-colors">
+                        Simple Search
+                    </button>
+                    <button onclick="switchTab('advanced')" id="advanced-tab"
+                            class="px-4 py-2 font-medium rounded-md transition-colors">
+                        Advanced Search
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Simple Search -->
+            <div id="simple-search" class="p-6 hidden">
+                <div class="mb-4 p-3 bg-blue-50 rounded">
+                    <i class="fas fa-database mr-2"></i>
+                    Data from database
+                </div>
+                <button onclick="performSimpleSearch()" 
+                        class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 transition">
+                    Search
+                </button>
+            </div>
+
+            <!-- Advanced Search -->
+<!-- Advanced Search section in index.html -->
+<div id="advanced-search" class="p-6 hidden">
+    <div class="space-y-6">
+        <!-- Time Range Section -->
+        <div class="bg-white p-4 rounded-lg border">
+            <h3 class="text-lg font-medium mb-4">Time Range</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">From</label>
+                    <input type="datetime-local" 
+                           id="from-time" 
+                           class="w-full border rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">To</label>
+                    <input type="datetime-local" 
+                           id="to-time" 
+                           class="w-full border rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+            </div>
+        </div>
+
+        <!-- Post Types Section -->
+        <div class="bg-white p-4 rounded-lg border">
+            <h3 class="text-lg font-medium mb-4">Post Types</h3>
+            <div class="space-y-2">
+                <div class="flex items-center">
+                    <input type="checkbox" 
+                           id="type-hot" 
+                           name="post-types" 
+                           value="hot"
+                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                    <label for="type-hot" class="ml-2 block text-sm text-gray-700">Hot</label>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" 
+                           id="type-new" 
+                           name="post-types" 
+                           value="new"
+                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                    <label for="type-new" class="ml-2 block text-sm text-gray-700">New</label>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" 
+                           id="type-top" 
+                           name="post-types" 
+                           value="top"
+                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                    <label for="type-top" class="ml-2 block text-sm text-gray-700">Top</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Configuration -->
+        <div class="bg-white p-4 rounded-lg border">
+            <h3 class="text-lg font-medium mb-4">Search Configuration</h3>
+            <div class="space-y-4">
+                <!-- Post Limit -->
+                <div>
+                    <label for="post-limit" class="block text-sm font-medium text-gray-700 mb-1">
+                        Number of Posts per Subreddit
+                    </label>
+                    <input type="number" 
+                           id="post-limit" 
+                           min="1" 
+                           max="100" 
+                           value="25"
+                           class="w-full border rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+
+                <!-- Include Comments -->
+                <div>
+                    <label for="include-comments" class="block text-sm font-medium text-gray-700 mb-1">
+                        Include Comments
+                    </label>
+                    <select id="include-comments" 
+                            class="w-full border rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="False">No</option>
+                        <option value="True">Yes</option>
+                    </select>
+                </div>
+
+                <!-- Search Text -->
+                <div>
+                    <label for="search-text" class="block text-sm font-medium text-gray-700 mb-1">
+                        Search Text (Optional)
+                    </label>
+                    <input type="text" 
+                           id="search-text" 
+                           placeholder="Enter keywords to filter posts..."
+                           class="w-full border rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Button -->
+        <div class="flex justify-end">
+            <button onclick="performAdvancedSearch()" 
+                    class="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                <span class="inline-flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    Start Search
+                </span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Indicator (hidden by default) -->
+    <div id="loading-indicator" class="hidden mt-4">
+        <div class="flex items-center justify-center p-4 bg-gray-50 rounded-lg">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <span class="ml-3 text-gray-700">Processing your search...</span>
+        </div>
+    </div>
+</div>
+
+<!-- Results Section -->
+<div id="results" class="mt-8">
+    <!-- Results will be dynamically inserted here -->
+</div>
+
+<!-- Error Template (hidden by default) -->
+<template id="error-template">
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div class="flex items-center">
+            <svg class="h-5 w-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="text-red-700"></span>
+        </div>
+    </div>
+</template>
+
+<!-- Success Results Template -->
+<template id="results-template">
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="p-4 bg-gray-50 border-b">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-medium text-gray-900">Search Results</h3>
+                <span class="text-sm text-gray-500">Search ID: <span class="search-id"></span></span>
+            </div>
+        </div>
+        <div class="divide-y divide-gray-200">
+            <!-- Results will be dynamically inserted here -->
+        </div>
+    </div>
+</template>
+
+<!-- Individual Post Template -->
+<template id="post-template">
+    <div class="p-4 hover:bg-gray-50">
+        <div class="flex items-start space-x-4">
+            <div class="flex-1 min-w-0">
+                <h4 class="text-lg font-medium text-gray-900 truncate"></h4>
+                <p class="text-sm text-gray-500">
+                    Posted by <span class="author"></span> in 
+                    <span class="subreddit"></span> • 
+                    <span class="timestamp"></span>
+                </p>
+                <p class="mt-2 text-gray-700 line-clamp-3 post-content"></p>
+                <div class="mt-2 flex items-center space-x-4 text-sm text-gray-500">
+                    <span class="flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                        </svg>
+                        <span class="score"></span>
+                    </span>
+                    <span class="flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        </svg>
+                        <span class="comments"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results" class="mt-8"></div>
+</div>
+
+<script>
+    let selectedButtons = [];
+
+    function getInitialData() {
+        // Get the value of the input field
+        alert("wait a second");
+        const userInput = document.getElementById('user-input').value;
+        
+        // Send a POST request with the input value
+        fetch('/get_initial_data', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ text: userInput })  // Send user input as JSON payload
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('dynamic-buttons').classList.remove('hidden');
+            document.getElementById('search-tabs').classList.remove('hidden');
+            renderButtons(data);
+        });
+    }
+    function renderButtons(data) {
+        const container = document.getElementById('button-container');
+        container.innerHTML = '';
+        
+        data.options.forEach(btn => {
+            const button = document.createElement('button');
+            button.className = 'border px-4 py-2 rounded-md transition-colors hover:bg-indigo-50';
+            button.textContent = btn;
+            button.onclick = () => toggleButton(btn, button);
+            container.appendChild(button);
+        });
+    }
+
+    function toggleButton(btn, element) {
+        if (selectedButtons.includes(btn)) {
+            selectedButtons = selectedButtons.filter(b => b !== btn);
+            element.classList.remove('bg-indigo-600', 'text-white', 'hover:bg-indigo-50');
+            element.classList.add('hover:bg-indigo-50');
+        } else {
+            selectedButtons.push(btn);
+            element.classList.remove('hover:bg-indigo-50');
+            element.classList.add('bg-indigo-600', 'text-white');
+        }
+    }
+
+    function switchTab(tab) {
+        const simpleTab = document.getElementById('simple-tab');
+        const advancedTab = document.getElementById('advanced-tab');
+        const simpleSearch = document.getElementById('simple-search');
+        const advancedSearch = document.getElementById('advanced-search');
+
+        if (tab === 'simple') {
+            simpleTab.classList.add('bg-indigo-100', 'text-indigo-600');
+            advancedTab.classList.remove('bg-indigo-100', 'text-indigo-600');
+            simpleSearch.classList.remove('hidden');
+            advancedSearch.classList.add('hidden');
+        } else {
+            advancedTab.classList.add('bg-indigo-100', 'text-indigo-600');
+            simpleTab.classList.remove('bg-indigo-100', 'text-indigo-600');
+            advancedSearch.classList.remove('hidden');
+            simpleSearch.classList.add('hidden');
+        }
+    }
+
+    function performSimpleSearch() {
+        if (selectedButtons.length === 0) {
+            alert('Please select at least one option');
+            return;
+        }
+        
+        fetch('/simple_search', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({selected_buttons: selectedButtons})
+        })
+        .then(response => response.json())
+        .then(data => {
+            showResults(data.results);
+        })
+        .catch(error => {
+            showError('An error occurred while performing the search');
+        });
+    }
+
+
+    function performAdvancedSearch() {
+    if (selectedButtons.length === 0) {
+        alert('Please select at least one topic');
+        return;
+    }
+    const userInput = document.getElementById('user-input').value;
+    const fromTime = document.getElementById('from-time').value;
+    const toTime = document.getElementById('to-time').value;
+    const postLimit = document.getElementById('post-limit').value;
+    const searchText = document.getElementById('search-text').value;
+    const includeComments = document.getElementById('include-comments').value;
+    
+    // Get selected post types
+    const postTypes = [];
+    document.querySelectorAll('input[name="post-types"]:checked').forEach(checkbox => {
+        postTypes.push(checkbox.value);
+    });
+
+    if (!fromTime || !toTime) {
+        alert('Please select both from and to times');
+        return;
+    }
+
+    if (postTypes.length === 0) {
+        alert('Please select at least one post type');
+        return;
+    }
+
+    // Show loading state
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.innerHTML = `
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="flex items-center justify-center space-x-2">
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+                <span>Processing your search...</span>
+            </div>
+        </div>
+    `;
+
+    fetch('/advanced_search', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            selected_buttons: selectedButtons,
+            from_time: fromTime,
+            to_time: toTime,
+            post_types: postTypes,
+            post_limit: postLimit,
+            include_comments: includeComments,
+            search_text: searchText
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showResults(data.results);
+        } else {
+            showError(data.error || 'An error occurred during the search');
+        }
+    })
+    .catch(error => {
+        showError('An error occurred while performing the advanced search');
+    });
+}
+
+    function showResults(results) {
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = `
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold mb-4">Search Results</h3>
+                <div class="p-4 bg-gray-50 rounded">
+                    ${results}
+                </div>
+            </div>
+        `;
+    }
+
+    function showError(message) {
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = `
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="p-4 bg-red-50 text-red-600 rounded">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    ${message}
+                </div>
+            </div>
+        `;
+    }
+
+    // Initialize simple tab as default
+    switchTab('simple');
+</script>
+{% endblock %}
