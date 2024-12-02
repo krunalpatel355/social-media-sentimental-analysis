@@ -1,0 +1,77 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
+
+jobs:
+  # CI Pipeline - Build & Push Docker Image
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    # - name: Run tests
+    #   run: |
+    #     pytest
+
+    - name: Login to DockerHub
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        
+      run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+
+    - name: Build Docker image
+      run: docker build -t krunal355/flask-app .
+
+    - name: Push Docker image to DockerHub
+      run: docker push krunal355/flask-app:latest
+
+  # CD Pipeline - Deploy to EC2
+  deploy:
+    runs-on: self-hosted
+    needs: build
+    # if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Configure AWS CLI
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2  # Replace with your AWS region
+
+    - name: SSH into EC2 and Deploy Docker Container
+      env:
+        PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+        EC2_HOST: ${{ secrets.EC2_HOST }}
+      run: |
+        # Save private key to a temporary file
+        echo "$PRIVATE_KEY" > temp_key.pem
+        chmod 600 temp_key.pem
+
+        # SSH into the EC2 instance and deploy
+        ssh -i temp_key.pem -o StrictHostKeyChecking=no ubuntu@$EC2_HOST <<EOF
+          sudo docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+          sudo docker pull krunal355/flask-app:latest
+          sudo docker rm -f cicd-pipeline-container || true
+          sudo docker run -d -p 5000:5000 --name cicd-pipeline-container krunal355/flask-app:latest
+        EOF
+
+        # Clean up
+        rm -f temp_key.pem
