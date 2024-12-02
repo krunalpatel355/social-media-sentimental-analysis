@@ -1,1 +1,1 @@
-# social-media-sentimental-analysis 
+# social-media-sentimental-analysis flask app
