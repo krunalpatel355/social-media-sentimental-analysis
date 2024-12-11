@@ -45,7 +45,7 @@ def get_initial_data():
 @app.route('/dashboard')
 def dashboard():
     # Use search_id from a recent search or a default value
-    search_id = "8cba419b-aa5b-4e80-8c96-70b520efdc1b"  # You might want to manage this dynamically
+    search_id = "87d8d4af-1f8e-4eb6-b00d-818b9e57dd04"  # You might want to manage this dynamically
     
     # Initialize dashboard with search_id
     dashboard_instance = DASHBOARD(search_id)
