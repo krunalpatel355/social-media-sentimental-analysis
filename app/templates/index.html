@@ -384,11 +384,13 @@
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
-            showResults(data.results);
-        } else {
-            showError(data.error || 'An error occurred during the search');
-        }
+        const strings = ["apple", "banana", "cherry", "date"];
+        const randomIndex = Math.floor(Math.random() * strings.length);
+        const randomString = strings[randomIndex];
+
+        results = randomString
+        showResults(data.results);
+        
     })
     .catch(error => {
         showError('An error occurred while performing the advanced search');
@@ -407,17 +409,17 @@
         `;
     }
 
-    function showError(message) {
-        const resultsDiv = document.getElementById('results');
-        resultsDiv.innerHTML = `
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <div class="p-4 bg-red-50 text-red-600 rounded">
-                    <i class="fas fa-exclamation-circle mr-2"></i>
-                    ${message}
-                </div>
-            </div>
-        `;
-    }
+    // function showError(message) {
+    //     const resultsDiv = document.getElementById('results');
+    //     resultsDiv.innerHTML = `
+    //         <div class="bg-white p-6 rounded-lg shadow-md">
+    //             <div class="p-4 bg-red-50 text-red-600 rounded">
+    //                 <i class="fas fa-exclamation-circle mr-2"></i>
+    //                 ${message}
+    //             </div>
+    //         </div>
+    //     `;
+    // }
 
     // Initialize simple tab as default
     switchTab('simple');
