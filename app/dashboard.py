@@ -99,20 +99,35 @@ class RedditAnalyzer:
 
     def perform_sentiment_analysis(self, search_id: str) -> Dict:
         """
-        Perform sentiment analysis on posts
+        Perform sentiment analysis on posts with extended emotion detection
         
         Args:
             search_id (str): The search ID to analyze
             
         Returns:
-            Dict: Sentiment analysis results
+            Dict: Sentiment analysis results with basic emotions
         """
         posts = self._get_posts_by_search_id(search_id)
         if not posts:
             return {"error": "No posts found for analysis"}
 
+        # Emotion lexicon (simplified version)
+        emotion_lexicon = {
+            'joy': ['happy', 'joy', 'love', 'excited', 'wonderful', 'delighted', 'glad', 'amazing'],
+            'sadness': ['sad', 'unhappy', 'depressed', 'grief', 'sorrow', 'melancholy', 'heartbroken', 'lonely'],
+            'anger': ['angry', 'mad', 'furious', 'irritated', 'annoyed', 'rage', 'frustration', 'enraged'],
+            'fear': ['afraid', 'scared', 'terrified', 'anxious', 'panic', 'dread', 'nervous', 'worried'],
+            'surprise': ['surprise', 'shocked', 'amazed', 'astonished', 'unexpected', 'stunned', 'wow'],
+            'disgust': ['disgust', 'repulsed', 'revolting', 'gross', 'nauseating', 'offensive', 'repugnant'],
+            'neutral': ['okay', 'fine', 'alright', 'neutral', 'indifferent', 'baseline']
+        }
+
         sentiment_results = {
-            'overall': {'positive': 0, 'negative': 0, 'neutral': 0},
+            'overall': {
+                'positive': 0, 'negative': 0, 'neutral': 0,
+                'joy': 0, 'sadness': 0, 'anger': 0, 
+                'fear': 0, 'surprise': 0, 'disgust': 0
+            },
             'posts': [],
             'time_series': {},
             'subreddit_sentiment': {}
@@ -121,17 +136,30 @@ class RedditAnalyzer:
         try:
             for post in posts:
                 # Analyze post title and content
-                text = f"{post['title']} {post.get('selftext', '')}"
+                text = f"{post['title']} {post.get('selftext', '')}".lower()
+                
+                # Sentiment analysis using TextBlob
                 sentiment = TextBlob(text)
+                polarity = sentiment.sentiment.polarity
                 
                 # Determine sentiment category
-                polarity = sentiment.sentiment.polarity
                 if polarity > 0.1:
-                    category = 'positive'
+                    base_category = 'positive'
                 elif polarity < -0.1:
-                    category = 'negative'
+                    base_category = 'negative'
                 else:
-                    category = 'neutral'
+                    base_category = 'neutral'
+                
+                # Emotion detection
+                detected_emotions = {emotion: 0 for emotion in emotion_lexicon.keys()}
+                
+                # Check for emotions based on lexicon
+                for emotion, keywords in emotion_lexicon.items():
+                    emotion_count = sum(1 for keyword in keywords if keyword in text)
+                    detected_emotions[emotion] = emotion_count
+                
+                # Determine primary emotion
+                primary_emotion = max(detected_emotions, key=detected_emotions.get)
                 
                 # Convert timestamp to datetime if it's not already
                 created_utc = post['created_utc']
@@ -143,29 +171,38 @@ class RedditAnalyzer:
                     'id': str(post['_id']),
                     'title': post['title'],
                     'polarity': polarity,
-                    'category': category,
+                    'base_category': base_category,
+                    'primary_emotion': primary_emotion,
+                    'emotion_scores': detected_emotions,
                     'created_utc': created_utc.isoformat()
                 }
                 sentiment_results['posts'].append(post_sentiment)
                 
                 # Update overall counts
-                sentiment_results['overall'][category] += 1
+                sentiment_results['overall'][base_category] += 1
+                sentiment_results['overall'][primary_emotion] += 1
                 
                 # Update time series data
                 date_key = created_utc.strftime('%Y-%m-%d')
                 if date_key not in sentiment_results['time_series']:
                     sentiment_results['time_series'][date_key] = {
-                        'positive': 0, 'neutral': 0, 'negative': 0
+                        'positive': 0, 'neutral': 0, 'negative': 0,
+                        'joy': 0, 'sadness': 0, 'anger': 0, 
+                        'fear': 0, 'surprise': 0, 'disgust': 0
                     }
-                sentiment_results['time_series'][date_key][category] += 1
+                sentiment_results['time_series'][date_key][base_category] += 1
+                sentiment_results['time_series'][date_key][primary_emotion] += 1
                 
                 # Update subreddit sentiment
                 subreddit = post['subreddit']
                 if subreddit not in sentiment_results['subreddit_sentiment']:
                     sentiment_results['subreddit_sentiment'][subreddit] = {
-                        'positive': 0, 'neutral': 0, 'negative': 0
+                        'positive': 0, 'neutral': 0, 'negative': 0,
+                        'joy': 0, 'sadness': 0, 'anger': 0, 
+                        'fear': 0, 'surprise': 0, 'disgust': 0
                     }
-                sentiment_results['subreddit_sentiment'][subreddit][category] += 1
+                sentiment_results['subreddit_sentiment'][subreddit][base_category] += 1
+                sentiment_results['subreddit_sentiment'][subreddit][primary_emotion] += 1
             
             # Calculate percentages
             total_posts = len(posts)
